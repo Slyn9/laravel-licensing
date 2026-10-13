@@ -1,0 +1,55 @@
+{
+    "name": "slyn9/laravel-licensing",
+    "description": "Licencias, cobranza y control de acceso por tenant (y sede opcional) para aplicaciones Laravel multi-tenant.",
+    "keywords": ["laravel", "licensing", "licenses", "multi-tenant", "billing"],
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "illuminate/console": "^12.0|^13.0",
+        "illuminate/contracts": "^12.0|^13.0",
+        "illuminate/database": "^12.0|^13.0",
+        "illuminate/events": "^12.0|^13.0",
+        "illuminate/http": "^12.0|^13.0",
+        "illuminate/routing": "^12.0|^13.0",
+        "illuminate/support": "^12.0|^13.0",
+        "illuminate/validation": "^12.0|^13.0",
+        "illuminate/view": "^12.0|^13.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0|^11.0",
+        "spatie/laravel-permission": "^6.0|^7.0"
+    },
+    "suggest": {
+        "spatie/laravel-permission": "Solo para RoleSuperAdminCheck (superadmin.driver = role)."
+    },
+    "autoload": {
+        "psr-4": {
+            "Slyn9\\Licensing\\": "src/",
+            "Slyn9\\Licensing\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Slyn9\\Licensing\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Slyn9\\Licensing\\LicensingServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
