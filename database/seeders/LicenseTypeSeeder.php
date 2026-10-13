@@ -73,7 +73,7 @@ class LicenseTypeSeeder extends Seeder
                 }
             }
 
-            $this->command?->info('LicenseTypeSeeder: tipos creados y trials asignados a '.$withoutLicense->count().' sede(s).');
+            $this->command?->info('LicenseTypeSeeder: tipos creados y trials asignados a '.$withoutLicense->count().' sedes.');
 
             return;
         }
@@ -86,6 +86,6 @@ class LicenseTypeSeeder extends Seeder
             $service->assignTrial($tenant, null, 'Trial asignado automáticamente al activar el módulo de licencias.');
         }
 
-        $this->command?->info('LicenseTypeSeeder: tipos creados y trials asignados a '.$withoutLicense->count().' tenant(s).');
+        $this->command?->info('LicenseTypeSeeder: tipos creados y trials asignados a '.$withoutLicense->count().' tenants.');
     }
 }

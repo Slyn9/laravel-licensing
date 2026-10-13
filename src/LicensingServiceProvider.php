@@ -29,6 +29,7 @@ use Slyn9\Licensing\Contracts\TenantIdentity;
 use Slyn9\Licensing\Contracts\UserTenantAccess;
 use Slyn9\Licensing\Http\Middleware\CheckCompanyLicense;
 use Slyn9\Licensing\Identity\DefaultTenantIdentity;
+use Slyn9\Licensing\Ui\Blade\AccessHandler;
 use Slyn9\Licensing\Ui\Blade\BannerComposer;
 
 class LicensingServiceProvider extends ServiceProvider
@@ -68,6 +69,7 @@ class LicensingServiceProvider extends ServiceProvider
 
         // Capa opcional Blade/Bootstrap: sin ella el núcleo no carga vistas ni rutas.
         if (Licensing::bladeUi()) {
+            $this->app->bind('licensing.ui.blade', AccessHandler::class);
             $this->loadViewsFrom($this->path('resources/views'), 'licensing');
             $this->registerRoutes();
             $this->registerBanner();

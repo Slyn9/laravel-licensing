@@ -4,7 +4,6 @@ namespace Slyn9\Licensing\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\View;
 use Slyn9\Licensing\Contracts\CurrentBranchResolver;
 use Slyn9\Licensing\Contracts\CurrentTenantResolver;
 use Slyn9\Licensing\Contracts\SuperAdminCheck;
@@ -63,22 +62,19 @@ class CheckCompanyLicense
 
         $request->attributes->set(self::ACCESS_ATTRIBUTE, $access);
 
+        // La UI Blade opcional registra `licensing.ui.blade`; sin ella el núcleo no renderiza nada.
+        $ui = app()->bound('licensing.ui.blade') ? app('licensing.ui.blade') : null;
+
         if (! $access->allowed) {
-            if (! Licensing::bladeUi()) {
+            if (! $ui) {
                 throw new LicenseBlockedException($access, $tenant, $branch);
             }
 
-            return response()->view('licensing::errors.blocked', [
-                'license' => $access->license,
-                'status' => $access->status,
-                'tenant' => $tenant,
-                'branch' => $branch,
-            ], 402);
+            return $ui->blocked($access, $tenant, $branch);
         }
 
-        // Compartir datos de advertencia con todas las vistas Blade
-        if (Licensing::bladeUi() && $access->shouldWarn()) {
-            View::share('licenseWarning', $access->license);
+        if ($ui && $access->shouldWarn()) {
+            $ui->warn($access);
         }
 
         return $next($request);
