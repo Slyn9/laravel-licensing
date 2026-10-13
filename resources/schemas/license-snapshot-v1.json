@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slyn9.dev/schemas/licensing/license-snapshot-v1.json",
+  "title": "License snapshot v1",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "product", "tenant_ref", "scope", "license", "installments", "payments"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "product": { "type": "string", "pattern": "^[A-Z0-9_]{2,20}$" },
+    "tenant_ref": { "type": "string", "minLength": 1 },
+    "scope": {
+      "type": "object",
+      "required": ["level", "branch_ref"],
+      "properties": {
+        "level": { "enum": ["tenant", "branch"] },
+        "branch_ref": { "type": ["string", "null"] }
+      }
+    },
+    "license": {
+      "type": "object",
+      "required": ["uuid", "type", "status", "effective_status", "starts_at", "expires_at", "grace_until", "currency", "total_amount", "paid_amount", "pending_amount", "installments_count"],
+      "properties": {
+        "uuid": { "type": "string", "format": "uuid" },
+        "type": {
+          "type": "object",
+          "required": ["uuid", "code", "name", "duration_days", "grace_period_days"],
+          "properties": {
+            "uuid": { "type": "string", "format": "uuid" },
+            "code": { "type": "string", "minLength": 1 },
+            "name": { "type": "string" },
+            "duration_days": { "type": ["integer", "null"] },
+            "grace_period_days": { "type": "integer" }
+          }
+        },
+        "status": { "enum": ["trial", "active", "grace", "expired", "blocked", "cancelled"] },
+        "effective_status": { "enum": ["trial", "active", "grace", "expired", "blocked", "cancelled"] },
+        "starts_at": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": ["string", "null"], "format": "date-time" },
+        "grace_until": { "type": ["string", "null"], "format": "date-time" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+        "total_amount": { "type": "string", "pattern": "^\\d+\\.\\d{2}$" },
+        "paid_amount": { "type": "string", "pattern": "^\\d+\\.\\d{2}$" },
+        "pending_amount": { "type": "string", "pattern": "^\\d+\\.\\d{2}$" },
+        "installments_count": { "type": "integer" },
+        "notes": { "type": ["string", "null"] },
+        "created_at": { "type": ["string", "null"], "format": "date-time" },
+        "updated_at": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "installments": { "type": "array", "items": { "$ref": "#/$defs/installment" } },
+    "payments": { "type": "array", "items": { "$ref": "#/$defs/payment" } }
+  },
+  "$defs": {
+    "installment": {
+      "type": "object",
+      "required": ["uuid", "number", "amount_due", "paid_amount", "due_date", "paid_at", "status"],
+      "properties": {
+        "uuid": { "type": "string", "format": "uuid" },
+        "number": { "type": "integer" },
+        "amount_due": { "type": "string", "pattern": "^\\d+\\.\\d{2}$" },
+        "paid_amount": { "type": "string", "pattern": "^\\d+\\.\\d{2}$" },
+        "due_date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "paid_at": { "type": ["string", "null"], "format": "date-time" },
+        "status": { "type": "string" }
+      }
+    },
+    "payment": {
+      "type": "object",
+      "required": ["uuid", "installment_uuid", "amount", "paid_at", "method"],
+      "properties": {
+        "uuid": { "type": "string", "format": "uuid" },
+        "installment_uuid": { "type": ["string", "null"], "format": "uuid" },
+        "amount": { "type": "string", "pattern": "^\\d+\\.\\d{2}$" },
+        "paid_at": { "type": "string", "format": "date-time" },
+        "method": { "type": "string" },
+        "reference": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
