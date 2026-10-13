@@ -97,6 +97,22 @@ La migración de `uuid` rellena cada tabla por lotes de 500; la de `currency` re
 - Sin UI Blade (`ui.blade = false`) el middleware lanza `LicenseBlockedException` (402) en vez de
   devolver una vista.
 
+## A 1.2.0 desde 1.1.0
+
+**Un paso obligatorio: migrar.** Los modelos usan `SoftDeletes`; sin la columna `deleted_at`, las consultas a
+las licencias fallan.
+
+- Anfitrión con `migrations.enabled = true` (farmacy): `composer update slyn9/laravel-licensing` y
+  `php artisan migrate`.
+- Anfitrión con `migrations.enabled = false` (ContaPE, Air-System): `composer update slyn9/laravel-licensing`,
+  `php artisan vendor:publish --tag=licensing-migrations` y copia **solo** las migraciones nuevas
+  (`…add_soft_deletes_to_license_tables` y `…set_tenant_foreign_key_on_delete`; las demás ya están publicadas),
+  y `php artisan migrate`. Si tu aplicación ya agregó `deleted_at` a las cuatro tablas por su cuenta, la migración
+  es un no-op: no hace falta publicarla, pero el paquete la ve como existente.
+- `tenant.on_delete` es opcional. Por defecto (`cascade`) nada cambia. Con `restrict` el `forceDelete` de un tenant
+  con licencias se rechaza; el borrado lógico no se ve afectado.
+- Si tu código usaba `CompanyLicense::query()` esperando ver filas borradas, usa `withTrashed()`.
+
 ## A 1.1.0 desde 1.0.0
 
 Sin pasos obligatorios: las tres novedades (`messages.*`, `LicenseTypeCatalogSeeder`, `migrations.enabled`)

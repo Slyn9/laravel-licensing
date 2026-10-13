@@ -94,8 +94,8 @@ trait MissingLicenseBehavior
     {
         $path = dirname(__DIR__, 2).'/database/migrations/2026_10_12_100000_convert_license_statuses_to_string.php';
 
-        // El rollback deshace C1/C6 y la conversión; después se reaplica todo.
-        $this->artisan('migrate:rollback', ['--path' => dirname($path), '--realpath' => true, '--step' => 3, '--force' => true])->assertSuccessful();
+        // El rollback deshace 1.2.0, C1/C6 y la conversión; después se reaplica todo.
+        $this->artisan('migrate:rollback', ['--path' => dirname($path), '--realpath' => true, '--step' => 5, '--force' => true])->assertSuccessful();
         $this->assertFalse(Schema::hasColumn('company_licenses', 'currency'));
 
         $statuses = ['trial', 'active', 'grace', 'expired', 'blocked', 'cancelled'];

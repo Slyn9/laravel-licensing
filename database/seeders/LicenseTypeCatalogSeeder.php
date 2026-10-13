@@ -56,7 +56,10 @@ class LicenseTypeCatalogSeeder extends Seeder
     public function run(): void
     {
         foreach (self::types() as $type) {
-            LicenseType::firstOrCreate(['code' => $type['code']], $type);
+            // Con borrado lógico: un tipo eliminado conserva su `code` (único). No se recrea ni se revive solo.
+            if (! LicenseType::withTrashed()->where('code', $type['code'])->exists()) {
+                LicenseType::create($type);
+            }
         }
 
         $this->command?->info('LicenseTypeCatalogSeeder: tipos de licencia cargados (sin asignar licencias).');

@@ -4,7 +4,9 @@ namespace Slyn9\Licensing\Services;
 
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -162,6 +164,9 @@ class LicenseService
     /**
      * La licencia no cancelada más reciente de cada tenant, indexada por id de tenant.
      *
+     * Si el modelo de tenant usa `SoftDeletes`, los tenants eliminados lógicamente no aparecen: su licencia
+     * sigue en la base (rastro de cobranza) pero no es parte de ninguna pantalla de administración.
+     *
      * @return Collection<int|string, CompanyLicense>
      */
     public function latestPerTenant(): Collection
@@ -169,6 +174,10 @@ class LicenseService
         return CompanyLicense::query()
             ->with('licenseType')
             ->where('status', '<>', LicenseStatus::CANCELLED->value)
+            ->when(
+                $this->tenantModelSoftDeletes(),
+                fn ($query) => $query->whereIn(Licensing::tenantKey(), $this->liveTenantKeys())
+            )
             ->orderByDesc('id')
             ->get()
             ->unique(fn (CompanyLicense $l) => $l->getAttribute(Licensing::tenantKey()))
@@ -193,6 +202,25 @@ class LicenseService
             ->with($with)
             ->orderByDesc('id')
             ->get();
+    }
+
+    private function tenantModelSoftDeletes(): bool
+    {
+        return in_array(SoftDeletes::class, class_uses_recursive(Licensing::tenantModel()), true);
+    }
+
+    /**
+     * Llaves de los tenants no eliminados. Sin los scopes globales del anfitrión (que filtran por contexto
+     * de request): solo importa el borrado lógico.
+     */
+    private function liveTenantKeys(): Builder
+    {
+        $model = Licensing::tenantModel();
+        $instance = new $model;
+
+        return $model::withoutGlobalScopes()
+            ->whereNull($instance->getQualifiedDeletedAtColumn())
+            ->select($instance->getQualifiedKeyName());
     }
 
     // ── Alta ─────────────────────────────────────────────────────────────────

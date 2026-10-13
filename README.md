@@ -90,6 +90,7 @@ listas (`payment_methods`, `routes.middleware`, `ui.banner_views`, `branches.uns
 | `tenant.table` | Tabla del tenant (destino de la FK en las migraciones) | `companies` |
 | `tenant.foreign_key` | Columna de `company_licenses` hacia el tenant | `company_id` |
 | `tenant.name_attribute` | Atributo que se muestra como nombre del tenant | `name` |
+| `tenant.on_delete` | `cascade`: si el tenant se borra DE VERDAD (`forceDelete`), sus licencias, cuotas y pagos se borran con él. `restrict`: un tenant con licencias no se puede borrar de verdad (el borrado lógico no se ve afectado). Solo lo aplica la migración `set_tenant_foreign_key_on_delete` | `cascade` |
 | `branches.enabled` | Activa las sedes como nivel de licencia (columna, resolución y UI) | `false` |
 | `branches.model` | Modelo de sede (requerido con `enabled`) | `null` |
 | `branches.table` | Tabla de sede; `null` = la del modelo | `null` |
@@ -548,9 +549,18 @@ vencidas y el estado persistido que muestran los reportes.
 | `2026_10_12_100000_convert_license_statuses_to_string` | Estados a `string(20)` y `paid_amount` por cuota |
 | `2026_10_13_100000_add_uuid_to_license_tables` | C1: `uuid` único en las 4 tablas, con relleno |
 | `2026_10_13_100001_add_currency_to_company_licenses_table` | C6: `currency` por licencia, con relleno |
+| `2026_10_13_100002_add_soft_deletes_to_license_tables` | 1.2.0: `deleted_at` en las 4 tablas. **No-op si el anfitrión ya la agregó** |
+| `2026_10_13_100003_set_tenant_foreign_key_on_delete` | 1.2.0: aplica `tenant.on_delete`. **No-op con el valor por defecto (`cascade`)** |
 
 Los nombres de las seis primeras no se pueden cambiar: instalaciones existentes las tienen
 registradas como ejecutadas. Todas tienen `down()`.
+
+**Borrado lógico (1.2.0).** Los cuatro modelos (`CompanyLicense`, `LicenseType`, `LicenseInstallment`,
+`LicensePayment`) usan `SoftDeletes`: el paquete no borra licencias (se cancelan), pero el anfitrión puede
+ocultarlas con `delete()` sin perder el rastro de cobranza, y `restore()` las devuelve. Requiere la columna
+`deleted_at`: la agrega `2026_10_13_100002_add_soft_deletes_to_license_tables` (con `migrations.enabled = false`,
+publícala con `--tag=licensing-migrations`). `latestPerTenant()` omite los tenants eliminados lógicamente cuando
+el modelo de tenant usa `SoftDeletes`.
 
 **Anfitrión cuya tabla de tenants se crea después del 2026-05-25.** Las migraciones del paquete llevan esa
 fecha: en una instalación desde cero correrían antes de que exista `companies` y su llave foránea fallaría

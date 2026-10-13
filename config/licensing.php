@@ -49,6 +49,7 @@ return [
         'table' => 'companies',         // tabla a la que apunta la FK de company_licenses
         'foreign_key' => 'company_id',  // columna en company_licenses
         'name_attribute' => 'name',     // atributo que se muestra como nombre
+        'on_delete' => 'cascade',       // cascade | restrict: qué pasa con las licencias si el tenant se borra DE VERDAD
     ],
 
     /*

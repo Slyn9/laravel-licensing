@@ -79,7 +79,7 @@ class V11AdditionsTest extends T2TestCase
 
     public function test_the_catalog_seeder_loads_the_types_and_assigns_nothing(): void
     {
-        LicenseType::query()->delete();
+        LicenseType::withTrashed()->forceDelete();
         $tenantWithoutLicense = $this->createTenant(['name' => 'Sin licencia']);
 
         $this->seed(LicenseTypeCatalogSeeder::class);

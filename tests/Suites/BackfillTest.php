@@ -18,10 +18,13 @@ class BackfillTest extends T1TestCase
         return dirname(__DIR__, 2).'/database/migrations';
     }
 
-    /** Vuelve al esquema previo a C1/C6 (el que tiene producción hoy). */
+    /**
+     * Vuelve al esquema previo a C1/C6 (el que tiene producción hoy). `--step` cuenta desde la última migración:
+     * primero se revierten las dos de 1.2.0 (borrado lógico y `tenant.on_delete`), luego currency y uuid.
+     */
     private function rollbackAdditiveMigrations(): void
     {
-        $this->artisan('migrate:rollback', ['--path' => $this->migrationsPath(), '--realpath' => true, '--step' => 2, '--force' => true])
+        $this->artisan('migrate:rollback', ['--path' => $this->migrationsPath(), '--realpath' => true, '--step' => 4, '--force' => true])
             ->assertSuccessful();
 
         $this->assertFalse(Schema::hasColumn('company_licenses', 'currency'));

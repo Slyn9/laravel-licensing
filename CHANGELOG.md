@@ -3,6 +3,26 @@
 Todos los cambios relevantes del paquete. Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/)
 y versionado semántico.
 
+## [1.2.0] — 2026-10-13
+
+Pedido por Air-System al instalar el paquete en producción. **Requiere una migración** (`deleted_at`): ver
+UPGRADING. Sin la columna, las consultas a las licencias fallan hasta migrar.
+
+### Agregado
+
+- **Borrado lógico**: `CompanyLicense`, `LicenseType`, `LicenseInstallment` y `LicensePayment` usan `SoftDeletes`.
+  Migración aditiva `2026_10_13_100002_add_soft_deletes_to_license_tables` (con guarda: no-op si el anfitrión ya
+  tiene la columna). El paquete sigue sin borrar licencias: se cancelan.
+- **`tenant.on_delete`** (`cascade` | `restrict`, por defecto `cascade`): con `restrict`, la migración
+  `2026_10_13_100003_set_tenant_foreign_key_on_delete` reemplaza el `ON DELETE CASCADE` de la llave foránea hacia el
+  tenant por `RESTRICT`: un tenant con licencias no se puede borrar de verdad. Con el valor por defecto es un no-op.
+
+### Cambiado
+
+- `LicenseService::latestPerTenant()` omite los tenants eliminados lógicamente cuando el modelo de tenant usa
+  `SoftDeletes` (su licencia permanece en la base, no aparece en las pantallas de administración).
+- `LicenseTypeCatalogSeeder` no recrea un tipo eliminado lógicamente (su `code` es único).
+
 ## [1.1.0] — 2026-10-13
 
 Cambios aditivos pedidos por ContaPE al instalar el paquete. Sin cambios de contrato, de esquema ni de

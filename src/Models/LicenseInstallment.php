@@ -3,11 +3,13 @@
 namespace Slyn9\Licensing\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Slyn9\Licensing\Models\Concerns\HasLicenseUuid;
 
 class LicenseInstallment extends Model
 {
     use HasLicenseUuid;
+    use SoftDeletes;
 
     protected $fillable = [
         'company_license_id', 'installment_number',

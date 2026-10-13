@@ -177,6 +177,8 @@ class IsolationTest extends TestCase
         $additive = [
             '2026_10_13_100000_add_uuid_to_license_tables.php',
             '2026_10_13_100001_add_currency_to_company_licenses_table.php',
+            '2026_10_13_100002_add_soft_deletes_to_license_tables.php',
+            '2026_10_13_100003_set_tenant_foreign_key_on_delete.php',
         ];
 
         $expected = array_merge($original, $additive);

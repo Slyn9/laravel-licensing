@@ -4,6 +4,7 @@ namespace Slyn9\Licensing\Models;
 
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use LogicException;
 use Slyn9\Licensing\Enums\LicenseStatus;
 use Slyn9\Licensing\Licensing;
@@ -14,6 +15,7 @@ use Slyn9\Licensing\Services\LicenseSnapshot;
 class CompanyLicense extends Model
 {
     use HasLicenseUuid;
+    use SoftDeletes;
 
     protected $fillable = [
         'license_type_id', 'status',
