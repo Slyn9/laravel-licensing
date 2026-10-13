@@ -59,6 +59,17 @@ abstract class LicensingTestCase extends Orchestra
     /** Hace una peticiÃ³n a una ruta protegida por license.check en el contexto indicado. */
     abstract protected function probe(Authenticatable $user, ?Model $tenant = null, ?Model $branch = null): TestResponse;
 
+    /** Vincula un usuario a otro tenant (solo topologías N:M). */
+    protected function attachUserToTenant(Authenticatable $user, Model $tenant): void
+    {
+        throw new \LogicException('La topología no soporta usuarios con varios tenants.');
+    }
+
+    protected function detachUserFromAllTenants(Authenticatable $user): void
+    {
+        throw new \LogicException('La topología no soporta usuarios con varios tenants.');
+    }
+
     protected function usesBranches(): bool
     {
         return false;

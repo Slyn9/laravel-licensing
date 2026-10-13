@@ -59,6 +59,16 @@ abstract class T2TestCase extends LicensingTestCase
         return $user;
     }
 
+    protected function attachUserToTenant(Authenticatable $user, Model $tenant): void
+    {
+        $user->companies()->attach($tenant->getKey());
+    }
+
+    protected function detachUserFromAllTenants(Authenticatable $user): void
+    {
+        $user->companies()->detach();
+    }
+
     protected function createSuperadmin(): Authenticatable
     {
         return T2User::create([

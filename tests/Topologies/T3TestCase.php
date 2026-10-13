@@ -79,6 +79,16 @@ abstract class T3TestCase extends LicensingTestCase
         return $user;
     }
 
+    protected function attachUserToTenant(Authenticatable $user, Model $tenant): void
+    {
+        $user->tenants()->attach($tenant->getKey());
+    }
+
+    protected function detachUserFromAllTenants(Authenticatable $user): void
+    {
+        $user->tenants()->detach();
+    }
+
     protected function createSuperadmin(): Authenticatable
     {
         $user = T3User::create([
