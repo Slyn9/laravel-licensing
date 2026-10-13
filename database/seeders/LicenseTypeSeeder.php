@@ -8,48 +8,16 @@ use Slyn9\Licensing\Models\CompanyLicense;
 use Slyn9\Licensing\Models\LicenseType;
 use Slyn9\Licensing\Services\LicenseService;
 
+/**
+ * Catálogo de tipos + Trial a todo tenant (o sede) que aún no tiene licencia. Para cargar SOLO el catálogo
+ * (sin asignar nada) usa `LicenseTypeCatalogSeeder`.
+ */
 class LicenseTypeSeeder extends Seeder
 {
     public function run(): void
     {
-        $types = [
-            [
-                'name' => 'Trial',
-                'code' => 'TRIAL',
-                'duration_days' => 30,
-                'base_price' => 0.00,
-                'grace_period_days' => 0,
-                'description' => 'Período de prueba gratuito de 30 días.',
-            ],
-            [
-                'name' => 'Mensual',
-                'code' => 'MON',
-                'duration_days' => 30,
-                'base_price' => 99.00,
-                'grace_period_days' => 5,
-                'description' => 'Licencia mensual con 5 días de gracia.',
-            ],
-            [
-                'name' => 'Anual',
-                'code' => 'ANN',
-                'duration_days' => 365,
-                'base_price' => 990.00,
-                'grace_period_days' => 15,
-                'description' => 'Licencia anual con 15 días de gracia.',
-            ],
-            [
-                'name' => 'Permanente',
-                'code' => 'PERM',
-                'duration_days' => null,
-                'base_price' => 2500.00,
-                'grace_period_days' => 0,
-                'description' => 'Licencia permanente sin vencimiento.',
-            ],
-        ];
-
-        foreach ($types as $type) {
-            LicenseType::firstOrCreate(['code' => $type['code']], $type);
-        }
+        // Catálogo de tipos (idempotente). Es el mismo que carga `LicenseTypeCatalogSeeder`.
+        $this->call(LicenseTypeCatalogSeeder::class);
 
         // Asignar Trial a las sedes (o, sin sedes, a los tenants) que aún no tienen licencia
         if (! LicenseType::where('code', Licensing::trialCode())->exists()) {

@@ -140,16 +140,21 @@ class LicenseService
         $reasons = array_values(array_unique($reasons));
 
         if (count($reasons) > 1) {
-            return 'Ninguna de sus empresas tiene una licencia vigente. Contacte al administrador.';
+            return $this->message('denied_many');
         }
 
         return match ($reasons[0]) {
-            'missing' => Licensing::branchesEnabled()
-                ? 'No hay una licencia asignada para su sede. Contacte al administrador.'
-                : 'No hay una licencia asignada para su empresa. Contacte al administrador.',
-            'blocked' => 'El acceso ha sido bloqueado por el administrador. Contacte a soporte.',
-            default => 'La licencia del sistema ha vencido. Contacte al administrador para renovarla.',
+            'missing' => $this->message(Licensing::branchesEnabled() ? 'denied_missing_branch' : 'denied_missing_tenant'),
+            'blocked' => $this->message('denied_blocked'),
+            default => $this->message('denied_expired'),
         };
+    }
+
+    /** Texto configurable (`licensing.messages.*`); sin la clave, el del paquete. */
+    private function message(string $key): string
+    {
+        // El config del anfitrión se fusiona con los defaults del paquete: la clave siempre existe.
+        return (string) config("licensing.messages.{$key}");
     }
 
     // ── Consultas para pantallas de administración ───────────────────────────

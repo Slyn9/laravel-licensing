@@ -199,6 +199,39 @@ return [
         'otro' => 'Otro',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Mensajes de rechazo del login (LicenseService::denialMessageFor)
+    |--------------------------------------------------------------------------
+    | Es lo único que el paquete le dice al usuario final con su propio texto. Por defecto está en español,
+    | tratando de «usted»; el anfitrión sobreescribe la clave que necesite (p. ej. para tratar de «tú»).
+    */
+    'messages' => [
+        // Con varios tenants y ninguno vigente por motivos distintos.
+        'denied_many' => 'Ninguna de sus empresas tiene una licencia vigente. Contacte al administrador.',
+        // Sin licencia asignada (con missing_license = block).
+        'denied_missing_tenant' => 'No hay una licencia asignada para su empresa. Contacte al administrador.',
+        'denied_missing_branch' => 'No hay una licencia asignada para su sede. Contacte al administrador.',
+        'denied_blocked' => 'El acceso ha sido bloqueado por el administrador. Contacte a soporte.',
+        'denied_expired' => 'La licencia del sistema ha vencido. Contacte al administrador para renovarla.',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Migraciones
+    |--------------------------------------------------------------------------
+    | enabled=true  → el paquete carga sus migraciones (comportamiento de siempre; farmacy).
+    | enabled=false → no las carga; el anfitrión las publica con
+    |                 `php artisan vendor:publish --tag=licensing-migrations`, que las copia a su
+    |                 database/migrations con la fecha de HOY. Es lo que necesita un anfitrión cuya tabla de
+    |                 tenants se crea DESPUÉS del 2026-05-25 (las migraciones del paquete llevan esa fecha y
+    |                 correrían antes de que exista `companies`: la llave foránea fallaría en una instalación
+    |                 desde cero).
+    */
+    'migrations' => [
+        'enabled' => true,
+    ],
+
     // Código del tipo de prueba y días de gracia si el tipo no define los suyos.
     'trial_code' => env('LICENSING_TRIAL_CODE', 'TRIAL'),
     'default_grace_days' => (int) env('LICENSING_DEFAULT_GRACE_DAYS', 7),

@@ -35,6 +35,9 @@
         }
     },
     "extra": {
+        "branch-alias": {
+            "dev-main": "1.x-dev"
+        },
         "laravel": {
             "providers": [
                 "Slyn9\\Licensing\\LicensingServiceProvider"

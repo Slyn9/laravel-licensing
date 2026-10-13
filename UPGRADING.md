@@ -97,6 +97,17 @@ La migración de `uuid` rellena cada tabla por lotes de 500; la de `currency` re
 - Sin UI Blade (`ui.blade = false`) el middleware lanza `LicenseBlockedException` (402) en vez de
   devolver una vista.
 
+## A 1.1.0 desde 1.0.0
+
+Sin pasos obligatorios: las tres novedades (`messages.*`, `LicenseTypeCatalogSeeder`, `migrations.enabled`)
+son aditivas y su valor por defecto es el comportamiento de 1.0.0. `composer update slyn9/laravel-licensing`
+y listo.
+
+- Para tratar de «tú» (u otro texto) en el rechazo del login, sobreescribe las claves `messages.*`.
+- Para un anfitrión **nuevo** cuya tabla de tenants se crea después del 2026-05-25, usa
+  `migrations.enabled = false` y `php artisan vendor:publish --tag=licensing-migrations` (README, sección 12).
+  Un anfitrión que ya corrió las migraciones originales (farmacy) **no** debe hacerlo.
+
 ## Política de versiones
 
 - **PATCH**: correcciones sin cambios de contrato.

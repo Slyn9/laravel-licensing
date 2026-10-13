@@ -3,6 +3,22 @@
 Todos los cambios relevantes del paquete. Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/)
 y versionado semántico.
 
+## [1.1.0] — 2026-10-13
+
+Cambios aditivos pedidos por ContaPE al instalar el paquete. Sin cambios de contrato, de esquema ni de
+comportamiento por defecto.
+
+### Agregado
+
+- **`messages.*`** en el config: los 5 textos que `denialMessageFor` le muestra al usuario final
+  (`denied_many`, `denied_missing_tenant`, `denied_missing_branch`, `denied_blocked`, `denied_expired`) son
+  configurables. Por defecto conservan el texto de 1.0.0.
+- **`LicenseTypeCatalogSeeder`**: carga solo el catálogo de tipos, sin asignar licencias. `LicenseTypeSeeder`
+  lo reutiliza y conserva su comportamiento (catálogo + Trial a tenants sin licencia).
+- **`migrations.enabled`** (por defecto `true`) y la etiqueta de publicación **`licensing-migrations`**: un
+  anfitrión cuya tabla de tenants se crea después del 2026-05-25 puede publicar las migraciones con la fecha de
+  hoy en vez de cargarlas, y así la llave foránea a `companies` existe cuando corren.
+
 ## [1.0.0] — 2026-10-12
 
 Primera versión publicada. Extrae a un paquete Composer el módulo de licencias que corre en producción

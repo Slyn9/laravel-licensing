@@ -58,7 +58,9 @@ class LicensingServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadMigrationsFrom($this->path('database/migrations'));
+        if (config('licensing.migrations.enabled', true)) {
+            $this->loadMigrationsFrom($this->path('database/migrations'));
+        }
 
         // Alias del middleware que el anfitrión aplica a sus rutas operativas.
         $this->app['router']->aliasMiddleware('license.check', CheckCompanyLicense::class);
@@ -262,5 +264,28 @@ class LicensingServiceProvider extends ServiceProvider
 
         $this->publishes([$this->path('config/licensing.php') => config_path('licensing.php')], 'licensing-config');
         $this->publishes([$this->path('resources/views') => resource_path('views/vendor/licensing')], 'licensing-views');
+        $this->publishes($this->publishableMigrations(), 'licensing-migrations');
+    }
+
+    /**
+     * Migraciones del paquete copiadas con la fecha de HOY (en el mismo orden relativo): para el anfitrión
+     * con `migrations.enabled = false` cuya tabla de tenants se crea después de las fechas originales.
+     *
+     * @return array<string, string> origen => destino
+     */
+    private function publishableMigrations(): array
+    {
+        $files = glob($this->path('database/migrations').DIRECTORY_SEPARATOR.'*.php') ?: [];
+        sort($files);
+
+        $base = time();
+        $published = [];
+
+        foreach ($files as $offset => $file) {
+            $name = preg_replace('/^\d{4}_\d{2}_\d{2}_\d{6}_/', '', basename($file));
+            $published[$file] = database_path('migrations/'.date('Y_m_d_His', $base + $offset).'_'.$name);
+        }
+
+        return $published;
     }
 }

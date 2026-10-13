@@ -64,6 +64,9 @@ composer require slyn9/laravel-licensing:^1.0
    ```bash
    php artisan db:seed --class="Slyn9\Licensing\Database\Seeders\LicenseTypeSeeder"
    ```
+   Si el anfitrión **ya tiene tenants reales** y decide él qué licencia recibe cada uno, usa en su lugar
+   `Slyn9\Licensing\Database\Seeders\LicenseTypeCatalogSeeder`: carga solo los tipos y no asigna ninguna licencia
+   (el seeder completo les asignaría un Trial de 30 días a todos).
 5. Aplica `license.check` a tus rutas operativas **después** del middleware que fija el tenant/sede
    (sección 5) y llama a `denialMessageFor` en tu login.
 6. Scheduler: un cron que ejecute `php artisan schedule:run` cada minuto (agenda `licenses:sync`).
@@ -132,6 +135,12 @@ listas (`payment_methods`, `routes.middleware`, `ui.banner_views`, `branches.uns
 | `currency.code` | Moneda que se guarda en cada licencia al crearla (C6) | `PEN` |
 | `currency.symbol` | Símbolo con el que se muestran los importes | `S/` |
 | `payment_methods` | Métodos de pago aceptados (`clave => etiqueta`) | efectivo, transferencia, tarjeta, otro |
+| `messages.denied_many` | Mensaje del login cuando ninguno de sus tenants permite acceso y los motivos son distintos | «Ninguna de sus empresas tiene una licencia vigente. Contacte al administrador.» |
+| `messages.denied_missing_tenant` | Mensaje del login: el tenant no tiene licencia (`missing_license = block`) | «No hay una licencia asignada para su empresa. Contacte al administrador.» |
+| `messages.denied_missing_branch` | Ídem con sedes activadas | «No hay una licencia asignada para su sede. Contacte al administrador.» |
+| `messages.denied_blocked` | Mensaje del login: licencia bloqueada | «El acceso ha sido bloqueado por el administrador. Contacte a soporte.» |
+| `messages.denied_expired` | Mensaje del login: licencia vencida | «La licencia del sistema ha vencido. Contacte al administrador para renovarla.» |
+| `migrations.enabled` | `true`: el paquete carga sus migraciones. `false`: no las carga; se publican con `--tag=licensing-migrations` (ver sección 12) | `true` |
 | `trial_code` | Código del tipo de licencia de prueba | `TRIAL` |
 | `default_grace_days` | Días de gracia si el tipo no define los suyos | `7` |
 
@@ -542,6 +551,17 @@ vencidas y el estado persistido que muestran los reportes.
 
 Los nombres de las seis primeras no se pueden cambiar: instalaciones existentes las tienen
 registradas como ejecutadas. Todas tienen `down()`.
+
+**Anfitrión cuya tabla de tenants se crea después del 2026-05-25.** Las migraciones del paquete llevan esa
+fecha: en una instalación desde cero correrían antes de que exista `companies` y su llave foránea fallaría
+(MySQL). Con `migrations.enabled = false` el paquete no las carga; publícalas y migra:
+
+```bash
+php artisan vendor:publish --tag=licensing-migrations   # las copia con la fecha de hoy, en el mismo orden
+php artisan migrate
+```
+
+Al actualizar el paquete, vuelve a publicar solo las migraciones nuevas (las ya publicadas no se tocan).
 
 **Activar las sedes después de migrar.** Con `branches.enabled = false` la migración de sede no hace
 nada y queda registrada como ejecutada. Para activarlas más adelante **no revierta migraciones**: ponga
