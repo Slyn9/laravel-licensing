@@ -113,6 +113,11 @@ las licencias fallan.
   con licencias se rechaza; el borrado lógico no se ve afectado.
 - Si tu código usaba `CompanyLicense::query()` esperando ver filas borradas, usa `withTrashed()`.
 
+### 1.2.1
+
+Sin pasos. Corrige `set_tenant_foreign_key_on_delete` en SQLite con datos (ver CHANGELOG). Si ya migraste con 1.2.0
+en MySQL/MariaDB/PostgreSQL no hay nada que rehacer.
+
 ## A 1.1.0 desde 1.0.0
 
 Sin pasos obligatorios: las tres novedades (`messages.*`, `LicenseTypeCatalogSeeder`, `migrations.enabled`)

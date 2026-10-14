@@ -3,6 +3,16 @@
 Todos los cambios relevantes del paquete. Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/)
 y versionado semántico.
 
+## [1.2.1] — 2026-10-13
+
+### Corregido
+
+- `set_tenant_foreign_key_on_delete` (1.2.0): en **SQLite** reconstruía `company_licenses` y, con las llaves foráneas
+  activas, el `DROP TABLE` de la reconstrucción borraba en cascada las cuotas y los pagos. Ahora, en SQLite, la
+  migración solo actúa si `company_licenses` está vacía; con datos la omite (la llave queda como la crearon las
+  migraciones originales). En MySQL/MariaDB/PostgreSQL nunca tocó datos. SQLite solo se usa en pruebas y
+  desarrollo; ninguna base de producción conocida estuvo afectada.
+
 ## [1.2.0] — 2026-10-13
 
 Pedido por Air-System al instalar el paquete en producción. **Requiere una migración** (`deleted_at`): ver

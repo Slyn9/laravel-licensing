@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -15,6 +16,11 @@ use Illuminate\Support\Facades\Schema;
  *
  * Las migraciones ya publicadas no se editan: por eso es una migración nueva y no un cambio a
  * `create_company_licenses_table`.
+ *
+ * SQLite (solo pruebas/desarrollo): no puede cambiar una llave foránea sin reconstruir la tabla, y con las
+ * llaves foráneas activas el `DROP TABLE` de la reconstrucción borra en cascada las cuotas y los pagos. Por eso,
+ * en SQLite la migración solo actúa si `company_licenses` está vacía (nada que perder); con datos la omite y la
+ * llave queda como la crearon las migraciones originales. En MySQL/MariaDB/PostgreSQL el cambio no toca datos.
  */
 return new class extends Migration
 {
@@ -39,6 +45,10 @@ return new class extends Migration
     private function replaceForeignKey(bool $restrict): void
     {
         if (! Schema::hasTable('company_licenses')) {
+            return;
+        }
+
+        if (DB::getDriverName() === 'sqlite' && DB::table('company_licenses')->exists()) {
             return;
         }
 
